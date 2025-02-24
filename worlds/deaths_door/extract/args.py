@@ -3,7 +3,7 @@ from argparse import ArgumentParser, Namespace
 REPO: str = "https://raw.githubusercontent.com/dpinela/DeathsDoor.Randomizer"
 COMMIT: str = "main"
 LOGIC_LOCATION: str = "Randomizer/Logic"
-OUTPUT: str = "../logic.json"
+OUTPUT: str = "../data"
 
 class Args:
     repo: str

@@ -6,7 +6,7 @@ from .lexer import Lexer
 
 
 class Parser:
-    definitions: list[rule.TermDefinition] = []
+    definitions: dict[str, rule.TermDefinition] = {}
     lexer: Lexer
 
     # State
@@ -27,7 +27,7 @@ class Parser:
             raise Exception(f"Too many terms in the stack: {"->".join(self.stack)}")
 
         self.activeTerm.rule = self.stack[0]
-        self.definitions.append(self.activeTerm)
+        self.definitions[self.activeTerm.term] = self.activeTerm
 
         self.isStateless = False
         self.activeTerm = None
@@ -143,7 +143,7 @@ class Parser:
         else:
             raise Exception(f"Invalid token found: {token}")
 
-    def parse(self) -> list[rule.TermDefinition]:
+    def parse(self) -> dict [str, rule.TermDefinition]:
         for t in self.lexer.tokens():
             if t is None:
                 break
