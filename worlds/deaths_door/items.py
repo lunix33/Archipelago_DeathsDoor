@@ -1,13 +1,11 @@
-import json
-from pathlib import Path
-from typing import Optional, Self
+from typing import Any, Optional, Self
 
 from BaseClasses import Item, ItemClassification
 
-class ItemData:
-    __base_id: int = 23000
-    __data_file: Path = Path(__file__) / "data" / "items.json"
-    __loaded_data: Optional[list[Self]] = None
+from .abc import Data, Idable
+
+class ItemData(Data, Idable):
+    data_file = "items.json"
 
     name: str
     category: str
@@ -18,6 +16,8 @@ class ItemData:
         self.name = name
         self.category = category
 
+        self.count = count if count is not None else 1
+
         if classification == "progression":
             self.classification = ItemClassification.progression
         elif classification == "useful":
@@ -25,21 +25,21 @@ class ItemData:
         else:
             self.classification = ItemClassification.filler
 
-        self.count = count if count is not None else 1
+    def to_game_item(self, player: int) -> "GameItem":
+        return GameItem(self, player)
+
+    @classmethod
+    def from_dict(cls, dict: dict[Any, Any]) -> Self:
+        return cls(dict.get("name"), dict.get("category"), dict.get("classification"), dict.get("count"))
 
     @classmethod
     def get_data(cls) -> list[Self]:
-        if cls.__loaded_data is None:
-            with cls.__data_file.open() as file:
-                cls.__loaded_data = json.load(file, object_hook=lambda d: cls(d["name"], d["category"], d["classification"], d["count"]))
-        return cls.__loaded_data
-
-    @classmethod
-    def name_to_id_dict(cls) -> dict[str, int]:
-        output = {}
-        for (idx, item) in enumerate(cls.get_data(), cls.__base_id):
-            output[item.name] = idx
-        output
+        return cls.load_get()
 
 class GameItem(Item):
     game: str = "Death's Door"
+    data: ItemData
+
+    def __init__(self, data: ItemData, player: int):
+        self.data = data
+        super().__init__(data.name, data.classification, data.id(), player)
