@@ -1,8 +1,8 @@
 
 from abc import ABC, abstractmethod
 from enum import StrEnum, auto
-from json import JSONDecoder, JSONEncoder
-from typing import Optional
+from json import JSONEncoder
+from typing import Any, Optional, Self
 
 class RuleJsonSerializer(JSONEncoder):
     def default(self, o):
@@ -10,7 +10,7 @@ class RuleJsonSerializer(JSONEncoder):
         if isinstance(o, Null):
             obj_dict["type"] = "null"
         if isinstance(o, Conjunction):
-            obj_dict["type"] = "conjonction"
+            obj_dict["type"] = "conjunction"
         if isinstance(o, Disjunction):
             obj_dict["type"] = "disjunction"
         if isinstance(o, Group):
@@ -19,18 +19,34 @@ class RuleJsonSerializer(JSONEncoder):
             obj_dict["type"] = "term"
         return obj_dict
 
+    @staticmethod
+    def from_dict(dict: dict[Any, Any]):
+        match dict.get("type"):
+            case "null":
+                return Null()
+            case "conjunction":
+                return Conjunction(dict.get("a"), dict.get("b"))
+            case "disjunction":
+                return Disjunction(dict.get("a"), dict.get("b"))
+            case "group":
+                return Group(dict.get("rule"))
+            case "term":
+                return Term(dict.get("term"), dict.get("modifier"))
+            case _:
+                return TermDefinition(dict.get("stateless"), dict.get("term"), dict.get("rule"))
+
 class TermDefinition:
     stateless: bool
     term: str
     rule: "Rule"
 
-    def __init__(self, stateless: bool, term: str) -> None:
+    def __init__(self, stateless: bool, term: str, rule: Optional["Rule"] = None) -> None:
         self.stateless = stateless
         self.term = term
-        self.rule = Null()
+        self.rule = rule or Null()
     
     def __str__(self) -> str:
-        return f"{"stateless " if self.stateless else ""}{self.term.value}: {self.rule}"
+        return f"{"stateless " if self.stateless else ""}{self.term}: {self.rule}"
 
 class TermModifierOperator(StrEnum):
     Equal = auto()
@@ -38,9 +54,9 @@ class TermModifierOperator(StrEnum):
 
     def __str__(self):
         match self:
-            case [TermModifierOperator.Equal]:
+            case TermModifierOperator.Equal:
                 return "="
-            case [TermModifierOperator.Greater]:
+            case TermModifierOperator.Greater:
                 return ">"
 
 class Rule(ABC):
@@ -54,13 +70,14 @@ class Term(Rule):
     term: str
     modifier: Optional[tuple[TermModifierOperator, str]]
 
-    def __init__(self, term: str):
+    def __init__(self, term: str, modifier: Optional[tuple[TermModifierOperator, str]] = None):
         self.term = term
-        self.modifier = None
+        self.modifier = modifier
 
     def __str__(self) -> str:
         if self.modifier is None:
             return self.term
+        print(f"{self.modifier[0]}")
         return f"{self.term}{self.modifier[0]}{self.modifier[1]}"
 
 class Group(Rule):
