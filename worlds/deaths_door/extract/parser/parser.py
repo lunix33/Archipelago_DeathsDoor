@@ -6,7 +6,7 @@ from .lexer import Lexer
 
 
 class Parser:
-    definitions: dict[str, rule.TermDefinition] = {}
+    definitions: list[rule.TermDefinition]
     lexer: Lexer
 
     # State
@@ -15,6 +15,7 @@ class Parser:
     activeTerm: Optional[rule.TermDefinition] = None
 
     def __init__(self, lexer: Lexer) -> None:
+        self.definitions = []
         self.lexer = lexer
 
     def _finalize_token(self):
@@ -27,7 +28,7 @@ class Parser:
             raise Exception(f"Too many terms in the stack: {"->".join(self.stack)}")
 
         self.activeTerm.rule = self.stack[0]
-        self.definitions[self.activeTerm.term] = self.activeTerm
+        self.definitions.append(self.activeTerm)
 
         self.isStateless = False
         self.activeTerm = None
@@ -89,7 +90,11 @@ class Parser:
             else:
                 raise Exception(f"Was not able to find term for modifier: {token}")
 
-        term.modifier = token
+        if token.ttype is TokenType.StateEqual:
+            term.modifier = (rule.TermModifierOperator.Equal, token.value)
+        elif token.ttype is TokenType.StateGreater:
+            term.modifier = (rule.TermModifierOperator.Greater, token.value)
+
         self.stack.append(previous)
 
     def _handle_operator(self, token: Token):
@@ -143,7 +148,7 @@ class Parser:
         else:
             raise Exception(f"Invalid token found: {token}")
 
-    def parse(self) -> dict [str, rule.TermDefinition]:
+    def parse(self) -> list[rule.TermDefinition]:
         for t in self.lexer.tokens():
             if t is None:
                 break

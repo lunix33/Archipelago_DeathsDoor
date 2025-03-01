@@ -25,7 +25,7 @@ LOGIC_FILES: list[list[Optional[str], str]] = [
     #[ADDONS, "Offscreen Targeting.addon.txt"]
 ]
 
-def parse_terms(content: str) -> dict[str, TermDefinition]:
+def parse_terms(content: str) -> list[TermDefinition]:
     lex = Lexer(content)
     parser = Parser(lex)
     return parser.parse()
@@ -34,7 +34,7 @@ def load_content_from_url(url: str) -> str:
     print(f"  Loading content from: {url}")
     return request.urlopen(url).read().decode('utf-8')
 
-def process_files(base_url: str, section_file: list[list[Optional[str], str]])-> dict[str, dict[str, TermDefinition]]:
+def process_files(base_url: str, section_file: list[list[Optional[str], str]])-> dict[str, list[TermDefinition]]:
     print(f"==> Processing logic files")
 
     terms_map: dict[str, list[TermDefinition]] = {}
@@ -43,22 +43,24 @@ def process_files(base_url: str, section_file: list[list[Optional[str], str]])->
         url = f"{base_url}/{file_name}"
         content = load_content_from_url(url)
         terms = parse_terms(content)
+        print(f"    Parsed {len(terms)} terms")
 
         # Extract the events (stateless regions)
         if name == REGIONS:
             print(f"  Processing events...")
-            events = {}
-            regions = {}
-            for name, definition in terms.items():
+            events = []
+            regions = []
+            for definition in terms:
                 if definition.stateless:
-                    events[name] = definition
+                    events.append(definition)
                 else:
-                    regions[name] = definition
+                    regions.append(definition)
 
             terms_map[EVENTS] = events
             terms_map[REGIONS] = regions
         else:
             terms_map[name] = terms
+
     return terms_map
 
 def save_to_file(dir: Path, content: dict[str, dict[str, TermDefinition]]):
@@ -66,7 +68,7 @@ def save_to_file(dir: Path, content: dict[str, dict[str, TermDefinition]]):
     for [filename, inner_content] in content.items():
         file = dir / f"{filename}.json"
         with file.open("w+") as f:
-            print(f"==> Saving logic to {file}")
+            print(f"  Saving logic to {file}")
             json.dump(inner_content, f, indent=2, cls=RuleJsonSerializer)
 
 def main(args: Args):
