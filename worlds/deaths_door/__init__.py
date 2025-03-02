@@ -59,6 +59,9 @@ class DeathsDoorWorld(World):
 
     def create_items(self) -> None:
         for item in ItemData.get_data():
+            # Skip starting weapon
+            if item.name == self.options.start_weapon.to_item_name():
+                continue
             for _ in range(item.count):
                 self.multiworld.itempool.append(self.create_item(item.name))
     
