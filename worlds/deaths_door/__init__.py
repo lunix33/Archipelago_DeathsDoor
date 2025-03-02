@@ -62,6 +62,7 @@ class DeathsDoorWorld(World):
             # Skip starting weapon
             if item.name == self.options.start_weapon.to_item_name():
                 continue
+
             for _ in range(item.count):
                 self.multiworld.itempool.append(self.create_item(item.name))
     
@@ -72,4 +73,4 @@ class DeathsDoorWorld(World):
         return {}
     
     def get_filler_item_name(self) -> str:
-        return "Life Seed"
+        return "100 Souls"

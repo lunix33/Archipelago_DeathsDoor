@@ -42,9 +42,9 @@
 	{ "name": "Makeshift Soul Key", "category": "shiny" },
 	{ "name": "Mysterious Locket", "category": "shiny" },
 
-	{ "name": "Life Seed", "category": "seed", "count": 50, "classification": "useful" },
+	{ "name": "Life Seed", "category": "seed", "count": 50 },
 	{ "name": "Pot", "category": "pot", "count": 50 },
-	{ "name": "100 Souls", "category": "orb", "count": 61, "classification": "useful" },
+	{ "name": "100 Souls", "category": "orb", "count": 61 },
 
 	{ "name": "Red Ancient Tablet of Knowledge", "category": "tablet" },
 	{ "name": "Yellow Ancient Tablet of Knowledge", "category": "tablet" },
@@ -52,7 +52,7 @@
 	{ "name": "Cyan Ancient Tablet of Knowledge", "category": "tablet" },
 	{ "name": "Blue Ancient Tablet of Knowledge", "category": "tablet" },
 	{ "name": "Purple Ancient Tablet of Knowledge", "category": "tablet" },
-	{ "name": "Ruins Owl", "category": "tablet" },
+	{ "name": "Estate Owl", "category": "tablet" },
 	{ "name": "Ruins Owl", "category": "tablet" },
 	{ "name": "Watchtowers Owl", "category": "tablet" },
 
