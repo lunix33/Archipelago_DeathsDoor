@@ -1,28 +1,25 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 import json
 from pathlib import Path
-from typing import Any, Optional, Self
+from typing import ClassVar, Optional, Self
 
-class Data(ABC):
-    __loaded_data: Optional[list[Self]] = None
-    __data_dir: Path = Path(__file__).parent.parent / "data"
-    data_file: str
+from .parse_object_hook import ParseObjectHook
 
-    @classmethod
-    @abstractmethod
-    def from_dict(cls, dict: dict[Any, Any]) -> Self:
-        pass
+class Data(ParseObjectHook, ABC):
+    _loaded_data: ClassVar[Optional[list[Self]]] = None
+    _data_dir: ClassVar[Path] = Path(__file__).parent.parent / "data"
+    data_file: ClassVar[str]
 
     @classmethod
     def get_data(cls) -> list[Self]:
-        if cls.__loaded_data is None:
+        if cls._loaded_data is None:
             cls.load()
-        return cls.__loaded_data
+        return cls._loaded_data or []
 
     @classmethod
     def load(cls):
-        if cls.__loaded_data is not None:
+        if cls._loaded_data is not None:
             return
 
-        with (cls.__data_dir / cls.data_file).open() as file:
-            cls.__loaded_data = json.load(file, object_hook=cls.from_dict)
+        with (cls._data_dir / cls.data_file).open() as file:
+            cls._loaded_data = json.load(file, object_hook=cls.object_hook)

@@ -1,4 +1,4 @@
-from typing import Any, Optional, Self
+from typing import Any, Optional
 
 from BaseClasses import Location, Region
 
@@ -19,7 +19,7 @@ class LocationData(Data, Idable):
         return GameLocation(self, player, region)
 
     @classmethod
-    def from_dict(cls, dict: dict[Any, Any]) -> Self:
+    def object_hook(cls, dict: dict[Any, Any]) -> Any:
         definition = RuleJsonSerializer.from_dict(dict)
         if not isinstance(definition, TermDefinition):
             return definition

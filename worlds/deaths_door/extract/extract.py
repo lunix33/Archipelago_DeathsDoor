@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from typing import Optional
 from urllib import request
 
 from args import Args
@@ -15,14 +14,14 @@ REGIONS = "regions"
 ENTRANCES = "entrances"
 ADDONS = None
 
-LOGIC_FILES: list[list[Optional[str], str]] = [
-    [LOCATIONS, "locations.txt"],
-    [REGIONS, "waypoints.txt"],
-    #[ENTRANCES, "transitions.txt"],
-    #[ADDONS, "Early Night.addon.txt"],
-    #[ADDONS, "Gate Rolls.addon.txt"],
-    #[ADDONS, "Geometry Exploits.addon.txt"],
-    #[ADDONS, "Offscreen Targeting.addon.txt"]
+LOGIC_FILES: list[tuple[str, str]] = [
+    (LOCATIONS, "locations.txt"),
+    (REGIONS, "waypoints.txt"),
+    #(ENTRANCES, "transitions.txt"),
+    #(ADDONS, "Early Night.addon.txt"),
+    #(ADDONS, "Gate Rolls.addon.txt"),
+    #(ADDONS, "Geometry Exploits.addon.txt"),
+    #(ADDONS, "Offscreen Targeting.addon.txt"),
 ]
 
 def parse_terms(content: str) -> list[TermDefinition]:
@@ -34,7 +33,7 @@ def load_content_from_url(url: str) -> str:
     print(f"  Loading content from: {url}")
     return request.urlopen(url).read().decode('utf-8')
 
-def process_files(base_url: str, section_file: list[list[Optional[str], str]])-> dict[str, list[TermDefinition]]:
+def process_files(base_url: str, section_file: list[tuple[str, str]])-> dict[str, list[TermDefinition]]:
     print(f"==> Processing logic files")
 
     terms_map: dict[str, list[TermDefinition]] = {}
@@ -48,8 +47,8 @@ def process_files(base_url: str, section_file: list[list[Optional[str], str]])->
         # Extract the events (stateless regions)
         if name == REGIONS:
             print(f"  Processing events...")
-            events = []
-            regions = []
+            events: list[TermDefinition] = []
+            regions: list[TermDefinition] = []
             for definition in terms:
                 if definition.stateless:
                     events.append(definition)
@@ -63,7 +62,7 @@ def process_files(base_url: str, section_file: list[list[Optional[str], str]])->
 
     return terms_map
 
-def save_to_file(dir: Path, content: dict[str, dict[str, TermDefinition]]):
+def save_to_file(dir: Path, content: dict[str, list[TermDefinition]]):
     print(f"==> Saving processed content")
     for [filename, inner_content] in content.items():
         file = dir / f"{filename}.json"

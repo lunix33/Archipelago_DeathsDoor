@@ -1,11 +1,11 @@
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import StrEnum, auto
 from json import JSONEncoder
-from typing import Any, Optional, Self
+from typing import Any, Optional
 
 class RuleJsonSerializer(JSONEncoder):
-    def default(self, o):
+    def default(self, o: Any):
         obj_dict = o.__dict__
         if isinstance(o, Null):
             obj_dict["type"] = "null"
@@ -24,16 +24,46 @@ class RuleJsonSerializer(JSONEncoder):
         match dict.get("type"):
             case "null":
                 return Null()
+
             case "conjunction":
-                return Conjunction(dict.get("a"), dict.get("b"))
+                a = dict.get("a")
+                b = dict.get("b")
+                if a is None or not isinstance(a, Rule):
+                    raise Exception("Failed to parse conjunction. Side A is invalid", dict)
+                if b is None or not isinstance(b, Rule):
+                    raise Exception("Failed to parse conjunction. Side B is invalid", dict)
+                return Conjunction(a, b)
+
             case "disjunction":
-                return Disjunction(dict.get("a"), dict.get("b"))
+                a = dict.get("a")
+                b = dict.get("b")
+                if a is None or not isinstance(a, Rule):
+                    raise Exception("Failed to parse disjunction. Side A is invalid", dict)
+                if b is None or not isinstance(b, Rule):
+                    raise Exception("Failed to parse disjunction. Side B is invalid", dict)
+                return Disjunction(a, b)
+
             case "group":
-                return Group(dict.get("rule"))
+                rule = dict.get("rule")
+                if rule is None or not isinstance(rule, Rule):
+                    raise Exception("Failed to parse group. Rule is invalid", dict)
+                return Group(rule)
+
             case "term":
-                return Term(dict.get("term"), dict.get("modifier"))
+                term = dict.get("term")
+                if term is None or not isinstance(term, str):
+                    raise Exception("Failed to parse term. Term is invalid", dict)
+                return Term(term, dict.get("modifier"))
+
             case _:
-                return TermDefinition(dict.get("stateless"), dict.get("term"), dict.get("rule"))
+                stateless = bool(dict.get("stateless") or False)
+                term = dict.get("term")
+                if term is None or not isinstance(term, str):
+                    raise Exception("Failed to parse term definition. Term is invalid", dict)
+                rule = dict.get("rule")
+                if rule is None or not isinstance(rule, Rule):
+                    raise Exception("Failed to parse term definition. Rule is invalid", dict)
+                return TermDefinition(stateless, term, rule)
 
 class TermDefinition:
     stateless: bool
@@ -44,6 +74,9 @@ class TermDefinition:
         self.stateless = stateless
         self.term = term
         self.rule = rule or Null()
+
+    def to_name(self) -> str:
+        return self.term.replace("_", " ")
     
     def __str__(self) -> str:
         return f"{"stateless " if self.stateless else ""}{self.term}: {self.rule}"
@@ -73,6 +106,9 @@ class Term(Rule):
     def __init__(self, term: str, modifier: Optional[tuple[TermModifierOperator, str]] = None):
         self.term = term
         self.modifier = modifier
+
+    def to_name(self) -> str:
+        return self.term.replace("_", " ")
 
     def __str__(self) -> str:
         if self.modifier is None:

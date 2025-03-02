@@ -3,20 +3,22 @@ from typing import Optional, Self
 
 from .token import Token, TokenType
 
+type CheckFn[T] = Callable[[T], tuple[int, Optional[Token]]]
 
 class Lexer:
     content: str
-    position: int = 0
+    position: int
 
-    def __init__(self, content):
+    def __init__(self, content: str):
         self.content = content
+        self.position = 0
 
     def tokens(self) -> Generator[Optional[Token]]:
         while self.position < len(self.content):
             yield self._runRules()
 
     @classmethod
-    def _simple(cls, expected: str, ttype: TokenType) -> Callable:
+    def mod_simple(cls, expected: str, ttype: TokenType) -> CheckFn[Self]:
         def simple(s: Self) -> tuple[int, Optional[Token]]:
             chars = s.content[s.position:s.position + len(expected)]
             if chars == expected:
@@ -25,7 +27,7 @@ class Lexer:
         return simple
 
     @classmethod
-    def _termParse(cls):
+    def mod_termParse(cls) -> CheckFn[Self]:
         def termParse(s: Self) -> tuple[int, Optional[Token]]:
             start = s.position
             end = s.position
@@ -48,7 +50,7 @@ class Lexer:
         return termParse
 
     @classmethod
-    def _stateModifierParse(cls):
+    def mod_stateModifierParse(cls) -> CheckFn[Self]:
         def stateModifierParse(s: Self) -> tuple[int, Optional[Token]]:
             start = s.position
             end = s.position + 1
@@ -75,7 +77,7 @@ class Lexer:
         return stateModifierParse
     
     @classmethod
-    def _commentParse(cls):
+    def mod_commentParse(cls) -> CheckFn[Self]:
         def commentParse(s: Self) -> tuple[int, Optional[Token]]:
             initial = s.content[s.position:s.position + 2]
             if initial != "//":
@@ -90,11 +92,11 @@ class Lexer:
                 char = s.content[end]
 
             step = (end - start) + 3
-            return step, Token(TokenType._Comment, s.content[start:end].strip())
+            return step, Token(TokenType.Comment, s.content[start:end].strip())
         return commentParse
     
     @classmethod
-    def _whitespaceParse(cls):
+    def mod_whitespaceParse(cls) -> CheckFn[Self]:
         def whitespaceParse(s: Self) -> tuple[int, Optional[Token]]:
             start = s.position
             end = start
@@ -106,34 +108,34 @@ class Lexer:
             step = (end - start)
             if step == 0:
                 return 0, None
-            return step, Token(TokenType._Whitespace, "")
+            return step, Token(TokenType.Whitespace, "")
         return whitespaceParse
 
     def _runRules(self) -> Optional[Token]:
         if self.position == len(self.content):
             return None
 
-        for r in rules:
+        for r in RULES:
             step, t = r(self)
             if t is not None:
                 self.position += step
-                if (t.ttype in [TokenType._Whitespace, TokenType._Comment, TokenType._StateWarn]):
+                if (t.ttype in [TokenType.Whitespace, TokenType.Comment, TokenType.StateWarn]):
                     return self._runRules()
                 return t
 
         self.position += 1
         return Token(TokenType.Illegal, self.content[self.position - 1])
 
-rules: list[Callable] = [
-    Lexer._whitespaceParse(),
-    Lexer._commentParse(),
-    Lexer._simple("/", TokenType._StateWarn),
-    Lexer._simple("+", TokenType.Conjonction),
-    Lexer._simple("|", TokenType.Disjonction),
-    Lexer._stateModifierParse(),
-    Lexer._simple("(", TokenType.OpenParent),
-    Lexer._simple(")", TokenType.CloseParent),
-    Lexer._simple("stateless", TokenType.Stateless),
-    Lexer._termParse(),
+RULES: list[CheckFn[Lexer]] = [
+    Lexer.mod_whitespaceParse(),
+    Lexer.mod_commentParse(),
+    Lexer.mod_simple("/", TokenType.StateWarn),
+    Lexer.mod_simple("+", TokenType.Conjonction),
+    Lexer.mod_simple("|", TokenType.Disjonction),
+    Lexer.mod_stateModifierParse(),
+    Lexer.mod_simple("(", TokenType.OpenParent),
+    Lexer.mod_simple(")", TokenType.CloseParent),
+    Lexer.mod_simple("stateless", TokenType.Stateless),
+    Lexer.mod_termParse(),
 ]
 

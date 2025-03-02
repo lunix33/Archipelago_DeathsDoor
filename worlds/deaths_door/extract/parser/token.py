@@ -10,10 +10,10 @@ class TokenType(StrEnum):
     Disjonction = auto()  # |
     StateGreater = auto() # >
     StateEqual = auto()   # =
-    _Comment = auto()     # // ... \n
+    Comment = auto()     # // ... \n
     Illegal = auto()      # Anything else...
-    _Whitespace = auto()  # Whitespaces (skipped)
-    _StateWarn = auto()   # /
+    Whitespace = auto()  # Whitespaces (skipped)
+    StateWarn = auto()   # /
 
 class Token:
     ttype: TokenType

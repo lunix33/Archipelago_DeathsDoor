@@ -25,7 +25,7 @@ class Parser:
         if len(self.stack) == 0:
             raise Exception("No item in the token stack.")
         elif len(self.stack) > 1:
-            raise Exception(f"Too many terms in the stack: {"->".join(self.stack)}")
+            raise Exception(f"Too many terms in the stack: {"->".join(map(lambda i: str(i),self.stack))}")
 
         self.activeTerm.rule = self.stack[0]
         self.definitions.append(self.activeTerm)

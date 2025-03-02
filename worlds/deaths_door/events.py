@@ -1,4 +1,4 @@
-from typing import Any, Optional, Self
+from typing import Any, Optional
 
 from BaseClasses import Item, Location, ItemClassification, Region
 
@@ -17,11 +17,11 @@ class EventData(Data):
         return EventLocation(self, player, parent)
 
     @classmethod
-    def from_dict(cls, dict: dict[Any, Any]) -> Self:
+    def object_hook(cls, dict: dict[Any, Any]) -> Any:
         definition = RuleJsonSerializer.from_dict(dict)
         if not isinstance(definition, TermDefinition):
             return definition
-        return cls(definition.term)
+        return cls(definition.to_name())
 
 class EventItem(Item):
     game = "Death's Door"

@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 
 REPO: str = "https://raw.githubusercontent.com/dpinela/DeathsDoor.Randomizer"
 COMMIT: str = "main"

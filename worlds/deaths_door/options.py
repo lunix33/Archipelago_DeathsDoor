@@ -25,7 +25,7 @@ class StartWeapon(Choice):
             case 4:
                 return "Thunder Hammer"
             case _:
-                raise Exception("Invalid option")
+                raise Exception("Invalid option: StartWeapon")
 
 @dataclass
 class Options(PerGameCommonOptions):

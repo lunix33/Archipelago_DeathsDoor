@@ -20,7 +20,7 @@ class DeathsDoorWorld(World):
     required_client_version = (0, 5, 1)
     settings_key = "deaths_door_options"
     options_dataclass = Options
-    options: Options
+    options: Options # type: ignore
 
     web = Web()
 
@@ -28,10 +28,6 @@ class DeathsDoorWorld(World):
     location_name_to_id = LocationData.name_to_id_dict()
 
     def __init__(self, multiworld: MultiWorld, player: int):
-        ItemData.load()
-        LocationData.load()
-        EventData.load()
-
         super().__init__(multiworld, player)
 
     @classmethod
@@ -72,7 +68,6 @@ class DeathsDoorWorld(World):
     def fill_slot_data(self) -> dict[str, object]:
         return {
             "start_weapon": self.options.start_weapon.to_item_name(),
-            "placements": {loc.name: loc.item.name for loc in self.get_locations()}
         }
     
     def get_filler_item_name(self) -> str:

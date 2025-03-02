@@ -1,4 +1,4 @@
-from typing import Any, Optional, Self
+from typing import Any, Optional
 
 from BaseClasses import Item, ItemClassification
 
@@ -29,8 +29,16 @@ class ItemData(Data, Idable):
         return GameItem(self, player)
 
     @classmethod
-    def from_dict(cls, dict: dict[Any, Any]) -> Self:
-        return cls(dict.get("name"), dict.get("category"), dict.get("classification"), dict.get("count"))
+    def object_hook(cls, dict: dict[Any, Any]) -> Any:
+        name = dict.get("name")
+        if name is None:
+            raise Exception(f"Invalid structure. No name found: {dict}")
+        category = dict.get("category")
+        if category is None:
+            raise Exception(f"Invalid structure. No category found: {dict}")
+        classification = dict.get("classification")
+        count = dict.get("count")
+        return cls(name, category, classification, count)
 
 class GameItem(Item):
     game: str = "Death's Door"
