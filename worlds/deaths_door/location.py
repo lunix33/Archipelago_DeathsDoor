@@ -25,10 +25,6 @@ class LocationData(Data, Idable):
             return definition
         return cls(definition.term)
 
-    @classmethod
-    def get_data(cls) -> list[Self]:
-        return cls.load_get()
-
 class GameLocation(Location):
     game: str = "Death's Door"
     data: LocationData

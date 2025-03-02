@@ -27,6 +27,8 @@ class DeathsDoorWorld(World):
     location_name_to_id = LocationData.name_to_id_dict()
 
     def __init__(self, multiworld: MultiWorld, player: int):
+        ItemData.load()
+        LocationData.load()
         super().__init__(multiworld, player)
 
     @classmethod

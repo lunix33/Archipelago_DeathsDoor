@@ -14,8 +14,15 @@ class Data(ABC):
         pass
 
     @classmethod
-    def load_get(cls) -> list[Self]:
+    def get_data(cls) -> list[Self]:
         if cls.__loaded_data is None:
-            with (cls.__data_dir / cls.data_file).open() as file:
-                cls.__loaded_data = json.load(file, object_hook=cls.from_dict)
+            cls.load()
         return cls.__loaded_data
+
+    @classmethod
+    def load(cls):
+        if cls.__loaded_data is not None:
+            return
+
+        with (cls.__data_dir / cls.data_file).open() as file:
+            cls.__loaded_data = json.load(file, object_hook=cls.from_dict)

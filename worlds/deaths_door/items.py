@@ -32,10 +32,6 @@ class ItemData(Data, Idable):
     def from_dict(cls, dict: dict[Any, Any]) -> Self:
         return cls(dict.get("name"), dict.get("category"), dict.get("classification"), dict.get("count"))
 
-    @classmethod
-    def get_data(cls) -> list[Self]:
-        return cls.load_get()
-
 class GameItem(Item):
     game: str = "Death's Door"
     data: ItemData
