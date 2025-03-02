@@ -70,7 +70,10 @@ class DeathsDoorWorld(World):
         self.multiworld.completion_condition[self.player] = lambda _: True 
     
     def fill_slot_data(self) -> dict[str, object]:
-        return {}
+        return {
+            "start_weapon": self.options.start_weapon.to_item_name(),
+            "placements": {loc.name: loc.item.name for loc in self.get_locations()}
+        }
     
     def get_filler_item_name(self) -> str:
         return "100 Souls"
