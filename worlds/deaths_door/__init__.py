@@ -1,5 +1,4 @@
-from typing import ClassVar
-from BaseClasses import Item, Location, MultiWorld, Region
+from BaseClasses import Item, MultiWorld, Region
 from worlds.AutoWorld import World
 
 from .web_world import Web

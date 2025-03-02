@@ -67,7 +67,7 @@ def save_to_file(dir: Path, content: dict[str, dict[str, TermDefinition]]):
     print(f"==> Saving processed content")
     for [filename, inner_content] in content.items():
         file = dir / f"{filename}.json"
-        with file.open("w+") as f:
+        with file.open("w") as f:
             print(f"  Saving logic to {file}")
             json.dump(inner_content, f, indent=2, cls=RuleJsonSerializer)
 
