@@ -20,7 +20,7 @@ class RuleJsonSerializer(JSONEncoder):
         return obj_dict
 
     @staticmethod
-    def from_dict(dict: dict[Any, Any]):
+    def object_hook(dict: dict[Any, Any]):
         match dict.get("type"):
             case "null":
                 return Null()

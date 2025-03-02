@@ -4,26 +4,27 @@ from BaseClasses import Location, Region
 
 from .abc import Data, Idable
 from .extract import RuleJsonSerializer, TermDefinition
+from .rules import Rule
 
 class LocationData(Data, Idable):
     data_file = "locations.json"
 
     name: str
-    term: str
+    rule: Rule
 
-    def __init__(self, term: str):
-        self.name = term.replace("_", " ")
-        self.term = term
+    def __init__(self, name: str, rule: Rule):
+        self.name = name
+        self.rule = rule
 
     def to_game_location(self, player: int, region: Region) -> "GameLocation":
         return GameLocation(self, player, region)
 
     @classmethod
     def object_hook(cls, dict: dict[Any, Any]) -> Any:
-        definition = RuleJsonSerializer.from_dict(dict)
+        definition = RuleJsonSerializer.object_hook(dict)
         if not isinstance(definition, TermDefinition):
             return definition
-        return cls(definition.term)
+        return cls(definition.to_name(), Rule(definition.rule))
 
 class GameLocation(Location):
     game: str = "Death's Door"
