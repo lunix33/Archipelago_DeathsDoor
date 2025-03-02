@@ -5,6 +5,7 @@ from .web_world import Web
 from .items import ItemData
 from .location import LocationData
 from .options import Options
+from .events import EventData
 
 class DeathsDoorWorld(World):
     """
@@ -29,6 +30,8 @@ class DeathsDoorWorld(World):
     def __init__(self, multiworld: MultiWorld, player: int):
         ItemData.load()
         LocationData.load()
+        EventData.load()
+
         super().__init__(multiworld, player)
 
     @classmethod
@@ -40,6 +43,10 @@ class DeathsDoorWorld(World):
 
         for loc_data in LocationData.get_data():
             loc = loc_data.to_game_location(self.player, menu_region)
+            menu_region.locations.append(loc)
+
+        for evt_data in EventData.get_data():
+            loc = evt_data.to_game_event(self.player, menu_region)
             menu_region.locations.append(loc)
 
         self.multiworld.regions.append(menu_region)
