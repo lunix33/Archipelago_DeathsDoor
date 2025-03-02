@@ -40,7 +40,6 @@ class DeathsDoorWorld(World):
 
         for loc_data in LocationData.get_data():
             loc = loc_data.to_game_location(self.player, menu_region)
-            loc.access_rule = lambda state: True
             menu_region.locations.append(loc)
 
         self.multiworld.regions.append(menu_region)
@@ -57,7 +56,7 @@ class DeathsDoorWorld(World):
                 self.multiworld.itempool.append(self.create_item(item.name))
     
     def set_rules(self) -> None:
-        self.multiworld.completion_condition[self.player] = lambda state: True 
+        self.multiworld.completion_condition[self.player] = lambda _: True 
     
     def fill_slot_data(self) -> dict[str, object]:
         return {}

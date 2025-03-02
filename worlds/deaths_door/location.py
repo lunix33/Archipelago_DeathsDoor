@@ -1,4 +1,4 @@
-from typing import Any, Self
+from typing import Any, Optional, Self
 
 from BaseClasses import Location, Region
 
@@ -29,6 +29,7 @@ class GameLocation(Location):
     game: str = "Death's Door"
     data: LocationData
 
-    def __init__(self, data: LocationData, player: int, parent = None):
+    def __init__(self, data: LocationData, player: int, parent: Optional[Region] = None):
         self.data = data
+        self.access_rule = lambda _: True
         super().__init__(player, data.name, data.id(), parent)
