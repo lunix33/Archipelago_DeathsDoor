@@ -10,14 +10,12 @@ from parser.rule import TermDefinition, RuleJsonSerializer
 
 LOCATIONS = "locations"
 EVENTS = "events"
-REGIONS = "regions"
-ENTRANCES = "entrances"
-ADDONS = None
+LOGIC = "logic"
 
 LOGIC_FILES: list[tuple[str, str]] = [
     (LOCATIONS, "locations.txt"),
-    (REGIONS, "waypoints.txt"),
-    #(ENTRANCES, "transitions.txt"),
+    (LOGIC, "waypoints.txt"),
+    (LOGIC, "transitions.txt"),
     #(ADDONS, "Early Night.addon.txt"),
     #(ADDONS, "Gate Rolls.addon.txt"),
     #(ADDONS, "Geometry Exploits.addon.txt"),
@@ -44,8 +42,11 @@ def process_files(base_url: str, section_file: list[tuple[str, str]])-> dict[str
         terms = parse_terms(content)
         print(f"    Parsed {len(terms)} terms")
 
+        if name not in terms_map:
+            terms_map[name] = []
+
         # Extract the events (stateless regions)
-        if name == REGIONS:
+        if file_name == "waypoints.txt":
             print(f"  Processing events...")
             events: list[TermDefinition] = []
             regions: list[TermDefinition] = []
@@ -55,10 +56,16 @@ def process_files(base_url: str, section_file: list[tuple[str, str]])-> dict[str
                 else:
                     regions.append(definition)
 
-            terms_map[EVENTS] = events
-            terms_map[REGIONS] = regions
-        else:
-            terms_map[name] = terms
+            terms = regions
+            if EVENTS not in terms_map:
+                terms_map[EVENTS] = []
+            terms_map[EVENTS] += events
+
+        elif file_name == "locations.txt":
+            print("  Removing all the pots locations.")
+            terms = [ t for t in terms if not t.term.startswith("Pot-") ]
+
+        terms_map[name] += terms
 
     return terms_map
 
