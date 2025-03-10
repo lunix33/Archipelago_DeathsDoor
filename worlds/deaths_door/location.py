@@ -32,5 +32,5 @@ class GameLocation(Location):
 
     def __init__(self, data: LocationData, player: int, parent: Optional[Region] = None):
         self.data = data
-        self.access_rule = lambda _: True
+        self.access_rule = lambda state: self.data.rule.evaluate(player, state)
         super().__init__(player, data.name, data.id(), parent)

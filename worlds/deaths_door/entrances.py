@@ -1,25 +1,25 @@
 from typing import Any, Optional
 
-from BaseClasses import Item, Location, ItemClassification, Region
+from BaseClasses import Item, ItemClassification, Location, Region
 
-from .extract import RuleJsonSerializer, TermDefinition
-from .abc import Data
+from .abc import Data, ParseObjectHook
 from .rules import Rule
+from .extract import TermDefinition, RuleJsonSerializer
 
-class EventData(Data):
-    data_file = "events.json"
+class EntranceData(Data, ParseObjectHook):
+    data_file = "entrances.json"
 
     name: str
     rule: Rule
 
-    def __init__(self, name: str, rule: Rule):
+    def __init__(self, name: str, rule: Rule) -> None:
         self.name = name
         self.rule = rule
 
         Rule.add_item(self.name)
 
-    def to_game_event(self, player: int, parent: Region) -> "EventLocation":
-        return EventLocation(self, player, parent)
+    def to_game_transition(self, player: int, parent: Region) -> "EntranceLocation":
+        return EntranceLocation(self, player, parent)
 
     @classmethod
     def object_hook(cls, dict: dict[Any, Any]) -> Any:
@@ -28,19 +28,19 @@ class EventData(Data):
             return definition
         return cls(definition.to_name(), Rule(definition.rule))
 
-class EventItem(Item):
+class EntranceItem(Item):
     game = "Death's Door"
-
-    def __init__(self, location: "EventLocation"):
+    
+    def __init__(self, location: "EntranceLocation"):
         super().__init__(location.name, ItemClassification.progression, None, location.player)
 
-class EventLocation(Location):
+class EntranceLocation(Location):
     game = "Death's Door"
 
-    data: EventData
+    data: EntranceData
 
-    def __init__(self, data: EventData, player: int, parent: Optional[Region] = None):
+    def __init__(self, data: EntranceData, player: int, parent: Optional[Region] = None):
         self.data = data
         super().__init__(player, data.name, None, parent)
-        self.place_locked_item(EventItem(self))
+        self.place_locked_item(EntranceItem(self))
         self.access_rule = lambda state: self.data.rule.evaluate(player, state)

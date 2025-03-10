@@ -5,7 +5,9 @@ from .web_world import Web
 from .options import Options
 from .items import ItemData
 from .location import LocationData
+from .entrances import EntranceData
 from .events import EventData
+from .rules import Rule
 
 class DeathsDoorWorld(World):
     """
@@ -28,6 +30,7 @@ class DeathsDoorWorld(World):
     location_name_to_id = LocationData.name_to_id_dict()
 
     def __init__(self, multiworld: MultiWorld, player: int):
+        Rule.load()
         super().__init__(multiworld, player)
 
     @classmethod
@@ -41,6 +44,9 @@ class DeathsDoorWorld(World):
             loc = loc_data.to_game_location(self.player, menu_region)
             menu_region.locations.append(loc)
 
+        for entrance_data in EntranceData.get_data():
+            loc = entrance_data.to_game_transition(self.player, menu_region)
+            menu_region.locations.append(loc)
         for evt_data in EventData.get_data():
             loc = evt_data.to_game_event(self.player, menu_region)
             menu_region.locations.append(loc)
@@ -63,7 +69,7 @@ class DeathsDoorWorld(World):
                 self.multiworld.itempool.append(self.create_item(item.name))
     
     def set_rules(self) -> None:
-        self.multiworld.completion_condition[self.player] = lambda _: True 
+        self.multiworld.completion_condition[self.player] = lambda state: state.has(self.options.target.to_event_name(), self.player) 
     
     def fill_slot_data(self) -> dict[str, object]:
         return {

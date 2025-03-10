@@ -7,7 +7,7 @@ from .parse_object_hook import ParseObjectHook
 
 class Data(ParseObjectHook, ABC):
     _loaded_data: ClassVar[Optional[list[Self]]] = None
-    _data_dir: ClassVar[Path] = Path(__file__).parent.parent / "data"
+    data_dir: ClassVar[Path] = Path(__file__).parent.parent / "data"
     data_file: ClassVar[str]
 
     @classmethod
@@ -21,5 +21,5 @@ class Data(ParseObjectHook, ABC):
         if cls._loaded_data is not None:
             return
 
-        with (cls._data_dir / cls.data_file).open() as file:
+        with (cls.data_dir / cls.data_file).open() as file:
             cls._loaded_data = json.load(file, object_hook=cls.object_hook)

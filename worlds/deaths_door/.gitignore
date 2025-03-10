@@ -1,3 +1,2 @@
-data/events.json
-data/locations.json
-data/logic.json
+data/*
+!data/items.json
