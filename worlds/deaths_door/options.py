@@ -27,7 +27,20 @@ class StartWeapon(Choice):
             case _:
                 raise Exception("Invalid option: StartWeapon")
 
+class WinTarget(Choice):
+    """Win target of the run"""
+    display_name = "Win target"
+    option_defeat_grey_crow = 0
+
+    def to_event_name(self) -> str:
+        match self.value:
+            case 0:
+                return "Grey Crow Boss"
+            case _:
+                raise Exception("Invalid option: WinTarget")
+
 @dataclass
 class Options(PerGameCommonOptions):
     death_link: DeathLink
     start_weapon: StartWeapon
+    target: WinTarget

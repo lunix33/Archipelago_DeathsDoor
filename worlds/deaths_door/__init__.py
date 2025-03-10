@@ -2,9 +2,9 @@ from BaseClasses import Item, MultiWorld, Region
 from worlds.AutoWorld import World
 
 from .web_world import Web
+from .options import Options
 from .items import ItemData
 from .location import LocationData
-from .options import Options
 from .events import EventData
 
 class DeathsDoorWorld(World):
@@ -68,6 +68,7 @@ class DeathsDoorWorld(World):
     def fill_slot_data(self) -> dict[str, object]:
         return {
             "start_weapon": self.options.start_weapon.to_item_name(),
+            "target": self.options.target.to_event_name()
         }
     
     def get_filler_item_name(self) -> str:
