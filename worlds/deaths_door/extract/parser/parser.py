@@ -4,9 +4,9 @@ from . import rule
 from .token import Token, TokenType
 from .lexer import Lexer
 
-
 class Parser:
     definitions: list[rule.TermDefinition]
+    nullified: set[str]
     lexer: Lexer
 
     # State
@@ -14,8 +14,9 @@ class Parser:
     stack: list["rule.Rule"] = []
     activeTerm: Optional[rule.TermDefinition] = None
 
-    def __init__(self, lexer: Lexer) -> None:
+    def __init__(self, lexer: Lexer, nullified: set[str] = set()) -> None:
         self.definitions = []
+        self.nullified = nullified
         self.lexer = lexer
 
     def _finalize_token(self):
@@ -63,7 +64,12 @@ class Parser:
         self.stack.append(previous)
 
     def _handle_term(self, token: Token):
-        term = rule.Term(token.value)
+        if token.value in self.nullified:
+            term = rule.Null()
+        elif token.value == "NONE":
+            term = rule.Boolean(False)
+        else:
+            term = rule.Term(token.value)
         previous = self.stack.pop()
 
         if isinstance(previous, rule.Term):
@@ -99,8 +105,6 @@ class Parser:
 
     def _handle_operator(self, token: Token):
         previous = self.stack.pop()
-        if isinstance(previous, rule.Null):
-            raise Exception(f"{previous} is followed by an invalid token: {token}")
 
         if token.ttype is TokenType.Conjonction:
             self.stack.append(rule.Conjunction(previous))

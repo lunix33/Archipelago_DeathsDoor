@@ -9,14 +9,16 @@ class RuleJsonSerializer(JSONEncoder):
         obj_dict = o.__dict__
         if isinstance(o, Null):
             obj_dict["type"] = "null"
-        if isinstance(o, Conjunction):
+        elif isinstance(o, Conjunction):
             obj_dict["type"] = "conjunction"
-        if isinstance(o, Disjunction):
+        elif isinstance(o, Disjunction):
             obj_dict["type"] = "disjunction"
-        if isinstance(o, Group):
+        elif isinstance(o, Group):
             obj_dict["type"] = "group"
-        if isinstance(o, Term):
+        elif isinstance(o, Term):
             obj_dict["type"] = "term"
+        elif isinstance(o, Boolean):
+            obj_dict["type"] = "boolean"
         return obj_dict
 
     @staticmethod
@@ -54,6 +56,12 @@ class RuleJsonSerializer(JSONEncoder):
                 if term is None or not isinstance(term, str):
                     raise Exception("Failed to parse term. Term is invalid", dict)
                 return Term(term, dict.get("modifier"))
+
+            case "boolean":
+                value = dict.get("value")
+                if value is None or not isinstance(value, bool):
+                    raise Exception("Failed to parse value. Boolean is invalid", dict)
+                return Boolean(value)
 
             case _:
                 stateless = bool(dict.get("stateless") or False)
@@ -97,7 +105,16 @@ class Rule(ABC):
 
 class Null(Rule):
     def __str__(self) -> str:
-        return f"-"
+        return "-"
+
+class Boolean(Rule):
+    value: bool
+
+    def __init__(self, value: bool) -> None:
+        self.value = value
+
+    def __str__(self) -> str:
+        return str(self.value)
 
 class Term(Rule):
     term: str
